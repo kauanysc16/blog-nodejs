@@ -1,0 +1,61 @@
+/* Importação da fonte */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+/* Definição de variáveis de cores para temas */
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  --heading-color: #2c3e50; /* Cor para cabeçalhos */
+  --body-bg-color: #f4f4f4; /* Cor de fundo para o corpo */
+  --body-text-color: #333; /* Cor do texto do corpo */
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+    --body-bg-color: #121212; /* Fundo do corpo no modo escuro */
+    --body-text-color: #e0e0e0; /* Texto do corpo no modo escuro */
+    --heading-color: #ffffff; /* Cor dos cabeçalhos no modo escuro */
+  }
+}
+
+/* Reset básico e box-sizing */
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+/* Definições para html e body */
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: var(--body-bg-color);
+  color: var(--body-text-color);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Links */
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Cabeçalhos */
+h1 {
+  color: var(--heading-color);
+}
+
+/* Configurações específicas para o modo escuro */
+@media (prefers-color-scheme: dark) {
+  html {
+    color-scheme: dark;
+  }
+}

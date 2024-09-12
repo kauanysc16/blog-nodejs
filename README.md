@@ -192,7 +192,6 @@ classDiagram
 ### Protótipo(Expectativa)
 1. Baixa(Expectativa):
 
-<<<<<<< HEAD
 ![alt text](Capturar1(1).PNG)
 
 2. Média(Expectativa):
@@ -212,27 +211,6 @@ classDiagram
 
 2. Média(Atingível):
 
-=======
-![alt text](Capturar1.PNG)
-
-2. Média(Expectativa):
-
-![alt text](Capturar5.PNG)
-
-3. Alta(Expectativa):
-
-![alt text](Capturar4.PNG)
-
-
-### Protótipo(Atingível)
-
-1. Baixa(Atingível):
-
-![alt text](Capturar1-1.PNG)
-
-2. Média(Atingível):
-
->>>>>>> e15e309fb5759913246897e43c9c8521e6ba5d33
 ![alt text](Capturar7.PNG)
 
 3. Alta(Atingível):

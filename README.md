@@ -192,7 +192,7 @@ classDiagram
 ### Protótipo(Expectativa)
 1. Baixa(Expectativa):
 
-![alt text](Capturar1(1).PNG)
+![alt text](<Capturar1 (1)-1.PNG>)
 
 2. Média(Expectativa):
 

@@ -1,75 +1,75 @@
 'use client';
+
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-export default function Login() {
+export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false); // Estado para o carregamento
-  const [error, setError] = useState(null); // Estado para mensagens de erro
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const router = useRouter();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!email || !password) {
-      setError('Por favor, preencha todos os campos.');
-      return;
-    }
-
-    setLoading(true); // Ativar o indicador de carregamento
-    setError(null); // Limpar erros anteriores
+    setLoading(true);
+    setError(null);
 
     try {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await res.json();
-      
-      if (res.ok) {
-        localStorage.setItem('token', data.token);
-        router.push('/posts');
-      } else {
-        setError(data.message || 'Erro ao fazer login');
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.message || 'Erro ao fazer login');
       }
-    } catch (error) {
-      setError('Erro ao se conectar ao servidor');
+
+      const { token } = await res.json();
+      localStorage.setItem('token', token); // Salva o token no localStorage
+      router.push('/posts'); // Redireciona para a página de postagens
+    } catch (err) {
+      setError(err.message);
     } finally {
-      setLoading(false); // Desativar o indicador de carregamento
+      setLoading(false);
     }
   };
 
   return (
-    <div>
+    <div className="login-container">
       <h1>Login</h1>
-      {error && <p style={{ color: 'red' }}>{error}</p>} {/* Exibir mensagem de erro */}
+      {error && <p style={{ color: 'red' }}>{error}</p>}
       <form onSubmit={handleSubmit}>
-        <div>
+        <div className="form-group">
           <label htmlFor="email">Email</label>
           <input
             type="email"
             id="email"
-            name="email"
-            placeholder="Email"
+            placeholder="Digite seu email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            className="form-control"
+            required
           />
         </div>
-        <div>
-          <label htmlFor="password">Password</label>
+        <div className="form-group">
+          <label htmlFor="password">Senha</label>
           <input
             type="password"
             id="password"
-            name="password"
-            placeholder="Password"
+            placeholder="Digite sua senha"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            className="form-control"
+            required
           />
         </div>
-        <button type="submit" disabled={loading}> {/* Desativar o botão durante o carregamento */}
-          {loading ? 'Entrando...' : 'Login'}
+        <button type="submit" disabled={loading} className="btn btn-primary">
+          {loading ? 'Entrando...' : 'Entrar'}
         </button>
       </form>
     </div>

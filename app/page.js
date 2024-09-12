@@ -1,53 +1,79 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+'use client';
 
-export default function Home() {
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+
+async function fetchRecentPosts() {
+  const res = await fetch('/api/posts');
+  if (!res.ok) throw new Error('Erro ao carregar postagens recentes');
+  const posts = await res.json();
+  return posts.slice(0, 5); // Retorna as 5 postagens mais recentes
+}
+
+export default function HomePage() {
+  const [recentPosts, setRecentPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    const loadRecentPosts = async () => {
+      try {
+        const data = await fetchRecentPosts();
+        setRecentPosts(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadRecentPosts();
+  }, []);
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        {/* Logotipo do Talk Blog */}
-        <Image
-          className={styles.logo}
-          src="/logo.png" // Adicione o logotipo do Talk Blog aqui (altere o caminho conforme necessário)
-          alt="Logotipo do Talk Blog"
-          width={180}
-          height={60}
-          priority
-        />
+    <div className="home-container">
+      <header className="site-header">
+        <h1>Bem-vindo ao BlogSite</h1>
+        <nav>
+          <a href="/posts">Postagens</a>
+          <a href="/login">Login</a>
+          <a href="/register">Registrar</a>
+        </nav>
+      </header>
 
-        {/* Slogan do Talk Blog */}
-        <h1>Bem-vindo ao Talk Blog</h1>
-        <p className={styles.slogan}>Discussões Que Valem a Pena</p>
+      <main>
+        <section className="intro">
+          <h2>Sobre o BlogSite</h2>
+          <p>O BlogSite é um lugar onde você pode ler e compartilhar postagens sobre diversos temas. Conecte-se com outros leitores e escritores, e explore conteúdo interessante.</p>
+        </section>
 
-        {/* Descrição curta do blog */}
-        <p className={styles.description}>
-          O espaço onde a conversa se transforma em conexão. No Talk Blog, discutimos ideias, compartilhamos histórias e inspiramos debates construtivos.
-        </p>
-
-        {/* Links para as páginas principais */}
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="/posts"
-            role="button" // Adiciona o papel de botão para links que agem como botões
-            aria-label="Ver Postagens"
-          >
-            Ver Postagens
-          </a>
-          <a
-            href="/register"
-            className={styles.secondary}
-            role="button" // Adiciona o papel de botão para links que agem como botões
-            aria-label="Registrar-se"
-          >
-            Registrar-se
-          </a>
-        </div>
+        <section className="recent-posts">
+          <h2>Postagens Recentes</h2>
+          {loading ? (
+            <p>Carregando...</p>
+          ) : error ? (
+            <p style={{ color: 'red' }}>{error}</p>
+          ) : recentPosts.length > 0 ? (
+            <ul>
+              {recentPosts.map((post) => (
+                <li key={post._id}>
+                  <a href={`/posts/${post._id}`}>
+                    <h3>{post.title}</h3>
+                    <p>{post.content.slice(0, 100)}...</p>
+                    <p><strong>Autor:</strong> {post.author.username}</p>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>Nenhuma postagem recente encontrada.</p>
+          )}
+        </section>
       </main>
 
-      {/* Rodapé */}
-      <footer className={styles.footer}>
-        <p>&copy; {new Date().getFullYear()} Talk Blog - Todos os direitos reservados.</p>
+      <footer className="site-footer">
+        <p>&copy; {new Date().getFullYear()} BlogSite. Todos os direitos reservados.</p>
       </footer>
     </div>
   );

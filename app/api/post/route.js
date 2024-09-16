@@ -1,15 +1,15 @@
 import Post from "@/models/Post";
-import User from "@/models/User";
 import connectMongo from "@/utils/dbConnect";
 import { NextResponse } from "next/server";
-import mongoose from "mongoose";
+import jwt from "jsonwebtoken";
 
-// Função GET - Listar postagens
 export async function GET(req) {
   await connectMongo();
 
   try {
-    const posts = await Post.find().populate('author', 'username'); // Popula o autor com o campo username
+    const posts = await Post.find()
+                            .select('-createdAt') // Exclui o campo `createdAt`
+                            .populate('author', 'username');
     return NextResponse.json(posts);
   } catch (error) {
     console.error("Erro ao buscar postagens:", error);
@@ -17,50 +17,53 @@ export async function GET(req) {
   }
 }
 
-// Função POST - Criar nova(s) postagem(ns)
 export async function POST(req) {
   await connectMongo();
 
   try {
     const contentType = req.headers.get('content-type');
-    console.log("Content-Type:", contentType);
-
     if (!contentType || !contentType.includes('application/json')) {
       return NextResponse.json({ error: 'Content-Type deve ser application/json' }, { status: 400 });
     }
 
+    // Pega o corpo da requisição (dados do formulário)
     const requestBody = await req.json();
-    console.log("Request Body:", requestBody);
+    const { title, content, token } = requestBody;  // O token agora está no corpo da requisição
 
-    const posts = Array.isArray(requestBody) ? requestBody : [requestBody];
-    const createdPosts = [];
-
-    for (const post of posts) {
-      const { title, content, author } = post;
-
-      if (!title || !content) {
-        return NextResponse.json({ error: 'Título e conteúdo são obrigatórios' }, { status: 400 });
-      }
-
-      // Validar o ID do autor
-      let authorId;
-      if (author && mongoose.Types.ObjectId.isValid(author._id)) {
-        authorId = author._id;
-      } else {
-        authorId = 'default_author_id'; // Substitua com um ObjectId válido, se disponível
-      }
-
-      const newPost = new Post({
-        title,
-        content,
-        author: authorId,
-      });
-
-      await newPost.save();
-      createdPosts.push(newPost);
+    if (!title || !content) {
+      return NextResponse.json({ error: 'Título e conteúdo são obrigatórios' }, { status: 400 });
     }
 
-    return NextResponse.json(createdPosts);
+    if (!token) {
+      return NextResponse.json({ error: 'Token não fornecido' }, { status: 401 });
+    }
+
+    let user;
+
+    try {
+      // Decodifica o token JWT para verificar o usuário
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      user = decoded; // O token contém o `userId` ou `username`
+    } catch (error) {
+      if (error.name === 'TokenExpiredError') {
+        return NextResponse.json({ error: 'Token expirado' }, { status: 403 });
+      } else if (error.name === 'JsonWebTokenError') {
+        return NextResponse.json({ error: 'Token inválido' }, { status: 403 });
+      } else {
+        return NextResponse.json({ error: 'Erro ao verificar o token' }, { status: 500 });
+      }
+    }
+
+    // Criação de uma nova postagem com o autor associado ao token
+    const newPost = new Post({
+      title,
+      content,
+      author: user.userId  // Assume que o `userId` está no token JWT
+    });
+
+    await newPost.save();
+
+    return NextResponse.json(newPost);
   } catch (error) {
     console.error("Erro ao criar postagem:", error);
     return NextResponse.json({ error: 'Erro ao criar postagem' }, { status: 500 });

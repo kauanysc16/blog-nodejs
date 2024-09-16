@@ -1,41 +1,35 @@
-'use client';
+"use client"; // Adiciona essa linha para indicar que este é um Client Component
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState } from 'react';
 
-export default function RegisterPage() {
+function RegisterPage() {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(null);
-  const router = useRouter();
+  const [message, setMessage] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    setSuccess(null);
+    setMessage(null);
 
     try {
-      const res = await fetch('/api/auth/register', {
+      const response = await fetch('/api/register', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, email, password }),
       });
 
-      if (!res.ok) {
-        const data = await res.json();
+      const data = await response.json();
+
+      if (!response.ok) {
         throw new Error(data.error || 'Erro ao registrar usuário');
       }
 
-      const data = await res.json();
-      setSuccess(data.message);
-      // Redireciona para a página de login após o registro bem-sucedido
-      router.push('/login');
+      setMessage(data.message);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -44,51 +38,47 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="register-container">
-      <h1>Registrar</h1>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      {success && <p style={{ color: 'green' }}>{success}</p>}
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label htmlFor="username">Nome de Usuário</label>
+    <div className="register-page">
+      <h1>Registro</h1>
+      {error && <p className="error">{error}</p>}
+      {message && <p className="success">{message}</p>}
+      <form onSubmit={handleRegister}>
+        <div>
+          <label htmlFor="username">Nome de Usuário:</label>
           <input
             type="text"
             id="username"
-            placeholder="Nome de Usuário"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            className="form-control"
             required
           />
         </div>
-        <div className="form-group">
-          <label htmlFor="email">Email</label>
+        <div>
+          <label htmlFor="email">Email:</label>
           <input
             type="email"
             id="email"
-            placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="form-control"
             required
           />
         </div>
-        <div className="form-group">
-          <label htmlFor="password">Senha</label>
+        <div>
+          <label htmlFor="password">Senha:</label>
           <input
             type="password"
             id="password"
-            placeholder="Senha"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="form-control"
             required
           />
         </div>
-        <button type="submit" disabled={loading} className="btn btn-primary">
+        <button type="submit" disabled={loading}>
           {loading ? 'Registrando...' : 'Registrar'}
         </button>
       </form>
     </div>
   );
 }
+
+export default RegisterPage;

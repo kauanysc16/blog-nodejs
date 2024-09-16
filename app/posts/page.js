@@ -1,167 +1,58 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useEffect, useState } from 'react';
 
-// Função para buscar todas as postagens
-async function fetchPosts() {
-  try {
-    const res = await fetch('/api/posts');
-    if (!res.ok) throw new Error('Erro ao carregar postagens');
-    return await res.json();
-  } catch (error) {
-    console.error('Erro na busca de postagens:', error);
-    throw error;
-  }
-}
-
-// Função para criar uma nova postagem
-async function createPost(newPost, token) {
-  try {
-    const res = await fetch('/api/posts', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`, // Se você precisar autenticar
-      },
-      body: JSON.stringify([newPost]), // Enviando como array, pois a API lida com arrays
-    });
-
-    if (!res.ok) {
-      const data = await res.text();
-      throw new Error(data || 'Erro ao criar postagem');
-    }
-
-    return await res.json();
-  } catch (error) {
-    console.error('Erro ao criar postagem:', error);
-    throw error;
-  }
-}
-
-// Componente para o formulário de criação de postagem
-function PostForm({ onSubmit, loading }) {
-  const [newPost, setNewPost] = useState({ title: '', content: '', author: {} });
-  const [error, setError] = useState(null);
-
-  const handleChange = (e) => {
-    const { id, value } = e.target;
-    setNewPost((prev) => ({ ...prev, [id]: value }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!newPost.title || !newPost.content) {
-      setError('Título e conteúdo são obrigatórios');
-      return;
-    }
-    setError(null);
-    try {
-      await onSubmit(newPost);
-      setNewPost({ title: '', content: '', author: {} });
-    } catch (err) {
-      setError(err.message);
-    }
-  };
-
-  return (
-    <form onSubmit={handleSubmit} className="post-form">
-      <div className="form-group">
-        <label htmlFor="title">Título</label>
-        <input
-          type="text"
-          id="title"
-          placeholder="Título da Postagem"
-          value={newPost.title}
-          onChange={handleChange}
-          className="form-control"
-          required
-        />
-      </div>
-      <div className="form-group">
-        <label htmlFor="content">Conteúdo</label>
-        <textarea
-          id="content"
-          placeholder="Conteúdo da Postagem"
-          value={newPost.content}
-          onChange={handleChange}
-          className="form-control"
-          required
-        />
-      </div>
-      {/* Opcionalmente, você pode adicionar um campo para o autor */}
-      {/* <div className="form-group">
-        <label htmlFor="author">Autor</label>
-        <input
-          type="text"
-          id="author"
-          placeholder="ID do Autor"
-          value={newPost.author._id || ''}
-          onChange={(e) => setNewPost((prev) => ({ ...prev, author: { _id: e.target.value } }))}
-          className="form-control"
-        />
-      </div> */}
-      <button type="submit" disabled={loading} className="btn btn-primary">
-        {loading ? 'Criando...' : 'Criar Postagem'}
-      </button>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-    </form>
-  );
-}
-
-// Componente para a lista de postagens
-function PostList({ posts }) {
-  return (
-    <ul className="posts-list">
-      {posts.length > 0 ? (
-        posts.map((post) => (
-          <li key={post._id} className="post-item">
-            <h2>{post.title}</h2>
-            <p>{post.content}</p>
-            <p><strong>Autor:</strong> {post.author?.username || 'Desconhecido'}</p>
-          </li>
-        ))
-      ) : (
-        <p>Nenhuma postagem encontrada.</p>
-      )}
-    </ul>
-  );
-}
-
-export default function PostsPage() {
+function PostsPage() {
   const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [title, setTitle] = useState('');
+  const [content, setContent] = useState('');
   const [error, setError] = useState(null);
-  const router = useRouter();
+  const [message, setMessage] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [token, setToken] = useState(''); // Suponha que você tenha uma maneira de obter o token
 
   useEffect(() => {
-    const loadPosts = async () => {
-      setLoading(true);
+    const fetchPosts = async () => {
       try {
-        const data = await fetchPosts();
+        const response = await fetch('/api/posts');
+        const data = await response.json();
+        
+        if (!response.ok) {
+          throw new Error(data.error || 'Erro ao buscar postagens');
+        }
+
         setPosts(data);
       } catch (err) {
         setError(err.message);
-      } finally {
-        setLoading(false);
       }
     };
 
-    loadPosts();
+    fetchPosts();
   }, []);
 
-  const handleCreatePost = async (newPost) => {
+  const handlePostSubmit = async (e) => {
+    e.preventDefault();
     setLoading(true);
-    const token = localStorage.getItem('token'); // Ajuste conforme necessário
-    if (!token) {
-      setError('Você precisa estar logado para criar uma postagem.');
-      setLoading(false);
-      return;
-    }
+    setError(null);
+    setMessage(null);
+
     try {
-      await createPost(newPost, token);
-      const updatedPosts = await fetchPosts();
-      setPosts(updatedPosts);
+      const response = await fetch('/api/posts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, content, token }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Erro ao criar postagem');
+      }
+
+      setMessage('Postagem criada com sucesso!');
+      setTitle('');
+      setContent('');
+      setPosts([...posts, data]);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -170,12 +61,48 @@ export default function PostsPage() {
   };
 
   return (
-    <div className="posts-container">
+    <div className="posts-page">
       <h1>Postagens</h1>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      {loading && <p>Carregando...</p>}
-      <PostForm onSubmit={handleCreatePost} loading={loading} />
-      <PostList posts={posts} />
+
+      {error && <p className="error">{error}</p>}
+      {message && <p className="success">{message}</p>}
+
+      <form onSubmit={handlePostSubmit}>
+        <div>
+          <label htmlFor="title">Título:</label>
+          <input
+            type="text"
+            id="title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            required
+          />
+        </div>
+        <div>
+          <label htmlFor="content">Conteúdo:</label>
+          <textarea
+            id="content"
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            required
+          />
+        </div>
+        <button type="submit" disabled={loading}>
+          {loading ? 'Criando...' : 'Criar Postagem'}
+        </button>
+      </form>
+
+      <h2>Lista de Postagens</h2>
+      <ul>
+        {posts.map((post) => (
+          <li key={post._id}>
+            <h3>{post.title}</h3>
+            <p>{post.content}</p>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
+
+export default PostsPage;

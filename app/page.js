@@ -1,80 +1,79 @@
-'use client';
+'use client'; // Adiciona essa linha para indicar que este é um Client Component
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation'; // Importa o useRouter do next/navigation
+import Image from 'next/image'; // Importa o componente Image do Next.js
+import styles from './page.module.css'; // Importa o CSS
 
-async function fetchRecentPosts() {
-  const res = await fetch('/api/posts');
-  if (!res.ok) throw new Error('Erro ao carregar postagens recentes');
-  const posts = await res.json();
-  return posts.slice(0, 5); // Retorna as 5 postagens mais recentes
-}
-
-export default function HomePage() {
-  const [recentPosts, setRecentPosts] = useState([]);
+const HomePage = () => {
+  const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const router = useRouter();
 
   useEffect(() => {
-    const loadRecentPosts = async () => {
+    const fetchPosts = async () => {
       try {
-        const data = await fetchRecentPosts();
-        setRecentPosts(data);
-      } catch (err) {
-        setError(err.message);
+        const response = await fetch('/api/');
+        if (!response.ok) {
+          throw new Error('Erro ao buscar postagens');
+        }
+        const data = await response.json();
+        setPosts(data);
+      } catch (error) {
+        setError(error.message);
       } finally {
         setLoading(false);
       }
     };
 
-    loadRecentPosts();
+    fetchPosts();
   }, []);
 
   return (
-    <div className="home-container">
-      <header className="site-header">
-        <h1>Bem-vindo ao BlogSite</h1>
-        <nav>
-          <a href="/posts">Postagens</a>
-          <a href="/login">Login</a>
-          <a href="/register">Registrar</a>
+    <div className={styles.container}>
+      <header className={styles.header}>
+        <Image 
+          src="/logo.png" 
+          alt="Logo" 
+          width={150} // Largura da imagem
+          height={50} // Altura da imagem
+          className={styles.logo} 
+        />
+        <nav className={styles.nav}>
+          <button onClick={() => router.push('/login')} className={styles.navButton}>Login</button>
+          <button onClick={() => router.push('/register')} className={styles.navButton}>Registro</button>
         </nav>
       </header>
-
-      <main>
-        <section className="intro">
-          <h2>Sobre o BlogSite</h2>
-          <p>O BlogSite é um lugar onde você pode ler e compartilhar postagens sobre diversos temas. Conecte-se com outros leitores e escritores, e explore conteúdo interessante.</p>
-        </section>
-
-        <section className="recent-posts">
-          <h2>Postagens Recentes</h2>
-          {loading ? (
-            <p>Carregando...</p>
-          ) : error ? (
-            <p style={{ color: 'red' }}>{error}</p>
-          ) : recentPosts.length > 0 ? (
-            <ul>
-              {recentPosts.map((post) => (
-                <li key={post._id}>
-                  <a href={`/posts/${post._id}`}>
-                    <h3>{post.title}</h3>
-                    <p>{post.content.slice(0, 100)}...</p>
-                    <p><strong>Autor:</strong> {post.author.username}</p>
-                  </a>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p>Nenhuma postagem recente encontrada.</p>
-          )}
-        </section>
-      </main>
-
-      <footer className="site-footer">
-        <p>&copy; {new Date().getFullYear()} BlogSite. Todos os direitos reservados.</p>
-      </footer>
+      <div className={styles.searchFilter}>
+        <input
+          type="text"
+          placeholder="Pesquisar"
+          className={styles.searchInput}
+          onChange={(e) => {/* Função para manipular pesquisa */}}
+        />
+        <input
+          type="text"
+          placeholder="Filtro"
+          className={styles.filterInput}
+          onChange={(e) => {/* Função para manipular filtro */}}
+        />
+      </div>
+      {loading && <p className={styles.loading}>Carregando postagens...</p>}
+      {error && <p className={styles.error}>Erro: {error}</p>}
+      {!loading && !error && posts.length === 0 && <p>Não há postagens disponíveis.</p>}
+      <div className={styles.postList}>
+        {posts.map(post => (
+          <div key={post._id} className={styles.postItem}>
+            <h2>{post.title}</h2>
+            <p>{post.content.substring(0, 100)}...</p>
+            <a href={`/post/${post._id}`} className={styles.readMore}>Leia mais</a>
+          </div>
+        ))}
+      </div>
+      <button className={styles.addButton} onClick={() => router.push('/posts')}>Adicionar</button>
     </div>
   );
-}
+};
+
+export default HomePage;

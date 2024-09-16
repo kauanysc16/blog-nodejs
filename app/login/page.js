@@ -1,37 +1,36 @@
-'use client';
+"use client"; 
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState } from 'react';
 
-export default function LoginPage() {
+function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const router = useRouter();
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
 
     try {
-      const res = await fetch('/api/auth/login', {
+      const response = await fetch('/api/login', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
 
-      if (!res.ok) {
-        const data = await res.json();
+      const data = await response.json();
+
+      if (!response.ok) {
         throw new Error(data.message || 'Erro ao fazer login');
       }
 
-      const { token } = await res.json();
-      localStorage.setItem('token', token); // Salva o token no localStorage
-      router.push('/posts'); // Redireciona para a página de postagens
+      // Salvar o token no localStorage ou estado global
+      localStorage.setItem('token', data.token);
+
+      // Redirecionar ou exibir mensagem de sucesso
+      window.location.href = '/dashboard'; // Altere conforme necessário
     } catch (err) {
       setError(err.message);
     } finally {
@@ -40,38 +39,36 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="login-container">
+    <div className="login-page">
       <h1>Login</h1>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label htmlFor="email">Email</label>
+      {error && <p className="error">{error}</p>}
+      <form onSubmit={handleLogin}>
+        <div>
+          <label htmlFor="email">Email:</label>
           <input
             type="email"
             id="email"
-            placeholder="Digite seu email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="form-control"
             required
           />
         </div>
-        <div className="form-group">
-          <label htmlFor="password">Senha</label>
+        <div>
+          <label htmlFor="password">Password:</label>
           <input
             type="password"
             id="password"
-            placeholder="Digite sua senha"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="form-control"
             required
           />
         </div>
-        <button type="submit" disabled={loading} className="btn btn-primary">
-          {loading ? 'Entrando...' : 'Entrar'}
+        <button type="submit" disabled={loading}>
+          {loading ? 'Loading...' : 'Login'}
         </button>
       </form>
     </div>
   );
 }
+
+export default LoginPage;

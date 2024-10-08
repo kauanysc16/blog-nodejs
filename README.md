@@ -1,218 +1,155 @@
-# Talk Blog
+# Sistema de Manutenção Preventiva e Corretiva
 
-## Sobre o Projeto
+## Descrição do Projeto
 
-Bem-vindo ao Talk Blog – o espaço onde a conversa se transforma em conexão. Somos apaixonados por criar um ambiente vibrante e inclusivo onde ideias podem florescer e discussões se aprofundar. No Talk Blog, acreditamos que a comunicação é a chave para o entendimento e a evolução.
+Este projeto é um sistema de gerenciamento de manutenção preventiva e corretiva para máquinas e equipamentos industriais. O sistema permite controlar manutenções preventivas, registrar falhas, gerenciar a alocação de técnicos e gerar relatórios detalhados sobre o histórico de manutenção e desempenho dos equipamentos.
 
-Nosso objetivo é criar um ponto de encontro digital para curiosos, pensadores e apaixonados por debates construtivos. Queremos ser mais do que apenas um blog; queremos ser uma comunidade onde cada voz tem espaço e cada perspectiva é valorizada.
+## Tecnologias Utilizadas
 
-## Objetivo do Projeto
-
-**Objetivo:** Desenvolvimento e Lançamento da Plataforma
-
-- **Específico:** Criar uma plataforma de blog interativa e responsiva onde os usuários possam se cadastrar, criar e editar postagens, avaliar postagens (curtidas e descurtidas) e gerenciar seus perfis.
-- **Mensurável:** A plataforma deve incluir pelo menos 5 páginas principais (home, perfil, postagens, busca e configurações) e ter todas as funcionalidades operacionais.
-- **Atingível:** Com uma equipe técnica qualificada e uso de tecnologias adequadas, o desenvolvimento pode ser realizado dentro do prazo estabelecido.
-- **Relevante:** Este objetivo é essencial para fornecer uma base sólida e funcional para o blog, permitindo que todas as outras funcionalidades sejam implementadas e utilizadas.
-- **Temporal:** Concluir o desenvolvimento e lançar a plataforma em 3 meses, com a primeira versão pronta para testes em 8 semanas e o lançamento final 1 semana após a conclusão dos testes.
+- Java
+- PostgreSQL, MongoDB, ou Json-Server para persistência de dados
+- Swing ou JavaFX para interfaces gráficas
+- JUnit para testes unitários
 
 ## Funcionalidades
 
-- Cadastro e Login de Usuários
-- Criação e Edição de Postagens
-- Sistema de Avaliação
-- Gerenciamento de Perfil
-- Busca e Navegação
+- Cadastro de técnicos, equipamentos e manutenções
+- Agendamento de manutenções preventivas e corretivas
+- Registro de falhas e peças substituídas
+- Gerenciamento da alocação de técnicos
+- Geração de relatórios de manutenção
+- Verificação de disponibilidade de técnicos
 
-## Cronograma
+## Diagramas
 
-- **Fase de Planejamento (2 semanas)**
-  - Definição de requisitos
-  - Planejamento do projeto
-
-- **Fase de Design (3 semanas)**
-  - Criação de wireframes e protótipos
-  - Revisão e aprovação do design
-
-- **Fase de Desenvolvimento (8 semanas)**
-  - Implementação do backend e frontend
-  - Desenvolvimento de funcionalidades principais
-
-- **Fase de Testes (2 semanas)**
-  - Testes funcionais e de usabilidade
-  - Correção de bugs
-
-- **Fase de Lançamento (1 semana)**
-  - Preparação para o lançamento
-  - Lançamento final da plataforma
-
-## Análise de Risco
-
-- **Risco: Atrasos no Desenvolvimento**
-  - **Probabilidade:** Média
-  - **Impacto:** Alto
-  - **Mitigação:** Estabelecer marcos claros e revisões semanais do progresso.
-
-- **Risco: Problemas Técnicos e Bugs**
-  - **Probabilidade:** Média
-  - **Impacto:** Médio
-  - **Mitigação:** Realizar testes extensivos e ter uma equipe de suporte pronta para resolver problemas rapidamente.
-
-- **Risco: Falta de Recursos**
-  - **Probabilidade:** Baixa
-  - **Impacto:** Médio
-  - **Mitigação:** Garantir uma alocação adequada de recursos e ter um plano de contingência.
-
-- **Risco: Feedback Negativo Inicial**
-  - **Probabilidade:** Média
-  - **Impacto:** Médio
-  - **Mitigação:** Implementar um sistema de feedback e ajustes contínuos baseado nas sugestões dos usuários.
-
-## Recursos
-
-- **Equipe de Desenvolvimento**
-  - Desenvolvedores frontend e backend
-  - Designer de UI/UX
-  - Especialista em segurança
-
-- **Tecnologias e Ferramentas**
-  - **Backend:** Python/Django ou Node.js
-  - **Frontend:** React.js ou Angular
-  - **Banco de Dados:** MySQL, PostgreSQL ou MongoDB
-  - **Infraestrutura:** Servidores para hospedagem (AWS, Google Cloud, etc.)
-
-- **Recursos Adicionais**
-  - **Marketing e Divulgação:** Orçamento para campanhas de marketing digital
-  - **Ferramentas de Gestão:** Software de gerenciamento de projetos (Microsoft Project, Trello)
-
-## Identidade Visual
-
-- **Nome da Marca:** TALK BLOG
-- **Slogan:** “Discussões Que Valem a Pena”
-- **Fontes:** Poppins – Google Fonts (https://fonts.google.com/specimen/Poppins)
-
-### Diagramas
+### Diagrama de Classes
 
 1. Classe
 
 ```mermaid
 classDiagram
-    class Usuario {
+    class Tecnico {
         +int id
         +string nome
-        +string email
-        +string senha
-        +login()
-        +logout()
+        +string especialidade
+        +boolean disponivel
+        +getId()
+        +setId(int)
+        +getNome()
+        +setNome(string)
+        +getEspecialidade()
+        +setEspecialidade(string)
+        +isDisponivel()
+        +setDisponivel(boolean)
     }
 
-    class Postagem {
+    class Equipamento {
         +int id
-        +string titulo
-        +string conteudo
-        +int autorId
-        +criar()
-        +editar()
-        +deletar()
-        +avaliar()
+        +string aparelho
+        +string modelo
+        +string local
+        +getId()
+        +setId(int)
+        +getAparelho()
+        +setAparelho(string)
+        +getModelo()
+        +setModelo(string)
+        +getLocal()
+        +setLocal(string)
     }
 
-    class Avaliacao {
+    class Manutencao {
         +int id
-        +int postagemId
-        +int usuarioId
-        +string tipo // Curtida ou Descurtida
-        +adicionar()
-        +remover()
+        +int idEquipamento
+        +int idTecnico
+        +string tipo
+        +string descricao
+        +LocalDate data
+        +string status
+        +string pecasSubstituidas
+        +int tempoInatividade
+        +getId()
+        +setId(int)
+        +getIdEquipamento()
+        +setIdEquipamento(int)
+        +getIdTecnico()
+        +setIdTecnico(int)
+        +getTipo()
+        +setTipo(string)
+        +getDescricao()
+        +setDescricao(string)
+        +getData()
+        +setData(LocalDate)
+        +getStatus()
+        +setStatus(string)
+        +getPecasSubstituidas()
+        +setPecasSubstituidas(string)
+        +getTempoInatividade()
+        +setTempoInatividade(int)
     }
 
-    class Perfil {
-        +int usuarioId
-        +string bio
-        +string foto
-        +atualizarBio()
-        +atualizarFoto()
-    }
-
-    Usuario "1" -- "0..*" Postagem : cria >
-    Postagem "0..*" -- "1" Avaliacao : recebe >
-    Usuario "1" -- "0..*" Avaliacao : faz >
-    Usuario "1" -- "1" Perfil : tem >
-
+    Tecnico "1" -- "0..*" Manutencao : realiza >
+    Equipamento "1" -- "0..*" Manutencao : passa por >
 ```
 
   2. Uso
 ```mermaid
-  flowchart TD
+flowchart TD
     A[Início] --> B{Tipo de Ação}
+    
+    B -->|Usuário| C[Cadastrar Técnico]
+    B -->|Usuário| D[Cadastrar Equipamento]
+    B -->|Usuário| E[Agendar Manutenção]
+    B -->|Usuário| F[Registrar Falha]
+    B -->|Usuário| G[Gerar Relatório]
+    B -->|Usuário| H[Verificar Disponibilidade]
 
-    B -->|Usuário| C[Cadastrar]
-    B -->|Usuário| D[Login]
-    B -->|Usuário| E[Criar Postagem]
-    B -->|Usuário| F[Editar Postagem]
-    B -->|Usuário| G[Deletar Postagem]
-    B -->|Usuário| H[Avaliar Postagem]
-    B -->|Usuário| I[Gerenciar Perfil]
-    B -->|Usuário| J[Buscar Postagens]
+    B -->|Administrador| I[Cadastrar Técnico]
+    B -->|Administrador| J[Cadastrar Equipamento]
+    B -->|Administrador| K[Agendar Manutenção]
+    B -->|Administrador| L[Registrar Falha]
+    B -->|Administrador| M[Gerar Relatório]
+    B -->|Administrador| N[Verificar Disponibilidade]
 
-    C --> K[Fim]
-    D --> K
-    E --> K
-    F --> K
-    G --> K
-    H --> K
-    I --> K
-    J --> K
+    C --> O[Fim]
+    D --> O
+    E --> O
+    F --> O
+    G --> O
+    H --> O
+    I --> O
+    J --> O
+    K --> O
+    L --> O
+    M --> O
+    N --> O
 
 
 ```
 
-  3. Fluxo
+ 3. Fluxo
 ```mermaid
-   flowchart TD
-    A[Início] --> B{Usuário logado?}
-    B -- Sim --> C[Buscar Postagens]
-    B -- Não --> D[Login]
-    D --> E[Cadastrar ou Login]
-    E --> C
-    C --> F[Selecionar Postagem]
-    F --> G{Deseja editar ou deletar?}
-    G -- Editar --> H[Editar Postagem]
-    G -- Deletar --> I[Deletar Postagem]
-    H --> J[Fim]
-    I --> J
+flowchart TD
+    A[Início] --> B{Cadastro de Técnico?}
+    B -- Sim --> C[Preencher dados do Técnico]
+    C --> D[Salvar Técnico]
+    B -- Não --> E{Cadastro de Equipamento?}
+    E -- Sim --> F[Preencher dados do Equipamento]
+    F --> G[Salvar Equipamento]
+    E -- Não --> H{Agendamento de Manutenção?}
+    H -- Sim --> I[Selecionar Equipamento e Técnico]
+    I --> J[Preencher dados da Manutenção]
+    J --> K[Salvar Manutenção]
+    H -- Não --> L{Registro de Falha?}
+    L -- Sim --> M[Selecionar Manutenção]
+    M --> N[Preencher dados da Falha]
+    N --> O[Salvar Falha]
+    L -- Não --> P{Geração de Relatório?}
+    P -- Sim --> Q[Selecionar tipo de Relatório]
+    Q --> R[Gerar Relatório]
+    P -- Não --> S{Verificação de Disponibilidade?}
+    S -- Sim --> T[Verificar disponibilidade dos Técnicos]
+    A --> U[Encerrar]
 
-    C --> K[Avaliar Postagem]
-    K --> J
-
-    B --> L[Sair]
-    L --> J
 
 ```
-### Protótipo(Expectativa)
-1. Baixa(Expectativa):
-
-![alt text](<Capturar1 (1)-1.PNG>)
-
-2. Média(Expectativa):
-
-![alt text](Capturar5.PNG)
-
-3. Alta(Expectativa):
-
-![alt text](Capturar4.PNG)
-
-
-### Protótipo(Atingível)
-
-1. Baixa(Atingível):
-
-![alt text](Capturar1.PNG)
-
-2. Média(Atingível):
-
-![alt text](Capturar7.PNG)
-
-3. Alta(Atingível):
-
-![alt text](Capturar6.PNG)
